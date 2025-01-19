@@ -6,8 +6,8 @@
 #include "stb_image_write.h"
 #include "geometric_vectors.h"
 
-#define WIDTH 100
-#define HEIGHT 100
+#define WIDTH 200
+#define HEIGHT 200
 
 long double l = 1;
 long double f = 1;
@@ -65,7 +65,7 @@ int main(int argc, char **argv){
     for (int frame=0;frame<75; frame++){
         img = calloc(WIDTH * HEIGHT * 3, sizeof(unsigned char));
 
-        Vector C = vec_sum(vec_scalar(k,4.), vec_sum(vec_scalar(i,5.*sin(frame/10.)), vec_scalar(j,5.*cos(frame/10.))));
+        Vector C = vec_sum(vec_scalar(k,4.), vec_sum(vec_scalar(i,5.*sin(frame/15.)), vec_scalar(j,5.*cos(frame/15.))));
         Vector D = vec_scalar(C, -f/mag(C)); // camera looking direction
         Camera cam = create_camera(C, D);
         
