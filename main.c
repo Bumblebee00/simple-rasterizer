@@ -6,8 +6,8 @@
 #include "stb_image_write.h"
 #include "geometric_vectors.h"
 
-#define WIDTH 200
-#define HEIGHT 200
+#define WIDTH 100
+#define HEIGHT 100
 
 long double l = 1;
 long double f = 1;
@@ -50,14 +50,15 @@ void draw_point(unsigned char *img, Vector P, Camera cam){
     int y_coord = roundl(dot(cam.U, vec_sub(S, cam.C1))*(-l)*HEIGHT);
     
     int index = (y_coord*WIDTH + x_coord)*3;
-    img[index] = 255;
-    img[index+1] = 255;
-    img[index+2] = 255;
+    for (int i=0; i<3; i++){
+        if (img[index+i] <= 127){ img[index+i]+=127; }
+        else{ img[index+i]+=128; }
+    }
 }
 
 // brutally inefficient way of drawing a line
 void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
-    int n_points = mag(vec_sub(A,B))*200;
+    int n_points = mag(vec_sub(A,B))*WIDTH;
 
     for (int i=0; i<n_points; i++){
         draw_point(img, vec_sum(A, vec_scalar(vec_sub(B,A), (long double)i/n_points)), cam);
@@ -71,8 +72,20 @@ int main(int argc, char **argv){
     Vector j = creaete_vector(0.,1.,0.);
     Vector k = creaete_vector(0.,0.,1.);
 
-    for (int frame=0;frame<75; frame++){
-        img = calloc(WIDTH * HEIGHT * 3, sizeof(unsigned char));
+    img = calloc(WIDTH * HEIGHT * 3, sizeof(unsigned char));
+
+    int index = 0;
+    for (int i=0; i<HEIGHT; i++){
+        for (int j=0; j<WIDTH; j++){
+            int c = rand() % 255;
+            img[index] = c;
+            img[index+1] = c;
+            img[index+2] = c;
+            index += 3;
+        }
+    }
+
+    for (int frame=0;frame<200; frame++){
 
         Vector C = vec_sum(vec_scalar(k,4.), vec_sum(vec_scalar(i,5.*sin(frame/15.)), vec_scalar(j,5.*cos(frame/15.))));
         Vector D = vec_scalar(C, -f/mag(C)); // camera looking direction
@@ -99,8 +112,6 @@ int main(int argc, char **argv){
     
         if (stbi_write_png(name, WIDTH, HEIGHT, 3, img, WIDTH * 3) != 0) {
         } else { printf("Failed to save the image\n"); }
-
-        free(img);
     }
 
     return 0;
