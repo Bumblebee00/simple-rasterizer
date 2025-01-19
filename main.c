@@ -55,6 +55,15 @@ void draw_point(unsigned char *img, Vector P, Camera cam){
     img[index+2] = 255;
 }
 
+// brutally inefficient way of drawing a line
+void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
+    int n_points = mag(vec_sub(A,B))*200;
+
+    for (int i=0; i<n_points; i++){
+        draw_point(img, vec_sum(A, vec_scalar(vec_sub(B,A), (long double)i/n_points)), cam);
+    }
+}
+
 int main(int argc, char **argv){
     unsigned char *img;
 
@@ -70,14 +79,20 @@ int main(int argc, char **argv){
         Camera cam = create_camera(C, D);
         
         // draw cube
-        draw_point(img, creaete_vector(1.,1.,1.), cam);
-        draw_point(img, creaete_vector(1.,1.,-1.), cam);
-        draw_point(img, creaete_vector(1.,-1.,1.), cam);
-        draw_point(img, creaete_vector(1.,-1.,-1.), cam);
-        draw_point(img, creaete_vector(-1.,1.,1.), cam);
-        draw_point(img, creaete_vector(-1.,1.,-1.), cam);
-        draw_point(img, creaete_vector(-1.,-1.,1.), cam);
-        draw_point(img, creaete_vector(-1.,-1.,-1.), cam);
+        draw_line(img, creaete_vector(1.,1.,1.), creaete_vector(1.,-1.,1.), cam);
+        draw_line(img, creaete_vector(1.,1.,1.), creaete_vector(-1.,1.,1.), cam);
+        draw_line(img, creaete_vector(-1.,1.,1.), creaete_vector(-1.,-1.,1.), cam);
+        draw_line(img, creaete_vector(1.,-1.,1.), creaete_vector(-1.,-1.,1.), cam);
+        
+        draw_line(img, creaete_vector(1.,1.,-1.), creaete_vector(1.,1.,1.), cam);
+        draw_line(img, creaete_vector(1.,-1.,-1.), creaete_vector(1.,-1.,1.), cam);
+        draw_line(img, creaete_vector(-1.,1.,-1.), creaete_vector(-1.,1.,1.), cam);
+        draw_line(img, creaete_vector(-1.,-1.,-1.), creaete_vector(-1.,-1.,1.), cam);
+
+        draw_line(img, creaete_vector(1.,1.,-1.), creaete_vector(1.,-1.,-1.), cam);
+        draw_line(img, creaete_vector(1.,1.,-1.), creaete_vector(-1.,1.,-1.), cam);
+        draw_line(img, creaete_vector(-1.,1.,-1.), creaete_vector(-1.,-1.,-1.), cam);
+        draw_line(img, creaete_vector(1.,-1.,-1.), creaete_vector(-1.,-1.,-1.), cam);
 
         char name[30];
         sprintf(name, "%d.png", frame);
