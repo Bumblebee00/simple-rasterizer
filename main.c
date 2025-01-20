@@ -45,6 +45,14 @@ Camera create_camera(Vector C, Vector D){
     return cam;
 }
 
+void manipulate_pixel(unsigned char *img, int x, int y){
+    int index = (y*WIDTH + x)*3;
+    for (int i=0; i<3; i++){
+        if (img[index+i] <= 127){ img[index+i]+=127; }
+        else{ img[index+i]+=128; }
+    }
+}
+
 // draws in the image img (array of rgb values) the point P, seen from camera cam
 void draw_point(unsigned char *img, Vector P, Camera cam){
     Vector v = vec_sub(P, cam.C);
@@ -52,14 +60,10 @@ void draw_point(unsigned char *img, Vector P, Camera cam){
     int x_coord = roundl(dot(cam.R, vec_sub(S, cam.C1))*l*WIDTH);
     int y_coord = roundl(dot(cam.U, vec_sub(S, cam.C1))*(-l)*HEIGHT);
     
-    int index = (y_coord*WIDTH + x_coord)*3;
-    for (int i=0; i<3; i++){
-        if (img[index+i] <= 127){ img[index+i]+=127; }
-        else{ img[index+i]+=128; }
-    }
+    manipulate_pixel(img, x_coord, y_coord);
 }
 
-int line_thickness = 5;
+long double line_thickness = 0.2;
 void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
     Vector ac = vec_sub(A, cam.C);
     Vector Sa = vec_sum(cam.C,vec_scalar(ac, square_mag(cam.D)/dot(cam.D,ac)));
@@ -75,7 +79,6 @@ void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
     
     Vector BA_2d = vec_sub(A_2d,B_2d);
 
-    int index=0;
     Vector P_2d = creaete_vector(0.,0.,0.);
     Vector BP_2d;
     Vector AP_2d;
@@ -84,9 +87,9 @@ void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
         for (int j=0; j<WIDTH; j++){
             P_2d.x = j+0.5; P_2d.y = i+0.5;
 
+            // calculate distance point segment
             AP_2d = vec_sub(P_2d,A_2d);
             BP_2d = vec_sub(P_2d,B_2d);
-
             if(dot(AP_2d, BA_2d) > 0){
                 dist = mag(AP_2d);
             } else if (dot(BP_2d, BA_2d) < 0){
@@ -95,39 +98,34 @@ void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
                 dist = mag(vec_sub(BP_2d, vec_scalar(BA_2d, dot(BA_2d, BP_2d)/square_mag(BA_2d))));
             }
 
-            if(roundl(dist)<line_thickness){
-                img[index] = 255;
-                img[index+1] = 255;
-                img[index+2] = 255;
+            if(dist<line_thickness){
+                manipulate_pixel(img, j, i);
             }
-            index += 3;
         }
     }
 }
 
 int main(int argc, char **argv){
-    unsigned char *img;
-
     Vector i = creaete_vector(1.,0.,0.);
     Vector j = creaete_vector(0.,1.,0.);
     Vector k = creaete_vector(0.,0.,1.);
 
+    
+    unsigned char *img = calloc(WIDTH * HEIGHT * 3, sizeof(unsigned char));
 
-    // // randomize image
-    // int index = 0;
-    // for (int i=0; i<HEIGHT; i++){
-    //     for (int j=0; j<WIDTH; j++){
-    //         int c = rand() % 255;
-    //         img[index] = c;
-    //         img[index+1] = c;
-    //         img[index+2] = c;
-    //         index += 3;
-    //     }
-    // }
+    // randomize image
+    int index = 0;
+    for (int i=0; i<HEIGHT; i++){
+        for (int j=0; j<WIDTH; j++){
+            int c = rand() % 255;
+            img[index] = c;
+            img[index+1] = c;
+            img[index+2] = c;
+            index += 3;
+        }
+    }
 
     for (int frame=0;frame<150; frame++){
-        img = calloc(WIDTH * HEIGHT * 3, sizeof(unsigned char));
-
         Vector C = vec_sum(vec_scalar(k,4.), vec_sum(vec_scalar(i,5.*sin(frame/15.)), vec_scalar(j,5.*cos(frame/15.))));
         Vector D = vec_scalar(C, -f/mag(C)); // camera looking direction
         Camera cam = create_camera(C, D);
@@ -153,8 +151,6 @@ int main(int argc, char **argv){
     
         if (stbi_write_png(name, WIDTH, HEIGHT, 3, img, WIDTH * 3) != 0) {
         } else { printf("Failed to save the image\n"); }
-
-        free(img);
     }
 
     return 0;
