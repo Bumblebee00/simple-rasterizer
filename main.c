@@ -55,7 +55,7 @@ int main(int argc, char **argv){
     for (int frame=0;frame<150; frame++){
         // rotating camera
         Vector C = vec_sum(vec_scalar(k,4.), vec_sum(vec_scalar(i,5.*sin(frame/10.)), vec_scalar(j,5.*cos(frame/10.))));
-        Vector D = vec_scalar(C, -f/mag(C));
+        Vector D = vec_scalar(C, -f/mag(C)); // camera looks at the origin
         Camera cam = create_camera(C, D);
         
         // draw cube

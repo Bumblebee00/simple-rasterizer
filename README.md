@@ -1,13 +1,19 @@
-The script `main.c` creates images of a hollow cube seen from a orbiting camera, that can be joined in a video using ffmpeg. The peculiarity is that the video starts from a random pixel configuration, and only the pixels in the cube are updated. Therfore a rotating cube is visible, but when pausing the video the cube disappears!
-<video controls src="5final/output.mp4" title="Title"></video>
+The script `main.c` is a simple rasterizer in c, i.e. it draws on screen geometric objects. It's intended to use with ffmpeg to create videos, using the following commands (also in `create_video.sh`):
 
-Here are the bash commands to create the video (also in `create_video.sh`):
 ```bash
-mkdir foo
-cd foo
+mkdir tmp_dirx
+cd tmp_dirx
 gcc ../main.c
 ./a.out
 ffmpeg -i %d.png -pix_fmt yuv420p output.mp4
 rm *.png
+mv output.mp4 ../videos/output.mp4
+cd ..
+rm -rf tmp_dirx
 ```
-In the repo there are other videos created while writing this project
+
+I originally started this project to create this:
+
+<video controls src="5final/output.mp4" title="Title"></video>
+
+A video of a rotating cube with the peculiarity that the cube disappears when pausing the video!
