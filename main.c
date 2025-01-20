@@ -23,6 +23,21 @@ typedef struct Camera{
 
 } Camera;
 
+typedef struct Color{
+    unsigned int r, g, b; // 0-255
+} Color;
+
+Vector i = {1.,0.,0.};
+Vector j = {0.,1.,0.};
+Vector k = {0.,0.,1.};
+
+Color red = {255,0,0};
+Color green = {0,255,0};
+Color blue = {0,0,255};
+Color orange = {255,165,0};
+Color lilla = {128,0,128};
+Color white = {255,255,255};
+
 // creates a camera from a C and D (assumes U is towards poositive y)
 Camera create_camera(Vector C, Vector D);
 
@@ -34,12 +49,9 @@ void draw_line(unsigned char *img, Vector A, Vector B, Camera cam);
 long double line_thickness = 3;
 
 // draws in the image img (array of rgb values) the triangle ABC, seen from camera cam
-void draw_triangle(unsigned char *img, Vector A, Vector B, Vector C, Camera cam);
+void draw_triangle(unsigned char *img, Vector A, Vector B, Vector C, Camera cam, Color c);
 
 int main(int argc, char **argv){
-    Vector i = creaete_vector(1.,0.,0.);
-    Vector j = creaete_vector(0.,1.,0.);
-    Vector k = creaete_vector(0.,0.,1.);
 
     // create a random image
     unsigned char *img;
@@ -68,7 +80,8 @@ int main(int argc, char **argv){
         draw_line(img, creaete_vector(-1.,1.,-1.), creaete_vector(-1.,-1.,-1.), cam);
         draw_line(img, creaete_vector(1.,-1.,-1.), creaete_vector(-1.,-1.,-1.), cam);
 
-        draw_triangle(img, creaete_vector(1.,-1.,-1.), creaete_vector(-1.,-1.,-1.), creaete_vector(1.,-1.,1.), cam);
+        draw_triangle(img, creaete_vector(1.,-1.,1.), creaete_vector(-1.,1.,1.), creaete_vector(1.,1.,1.), cam, orange);
+        draw_triangle(img, creaete_vector(1.,-1.,1.), creaete_vector(-1.,1.,1.), creaete_vector(-1.,-1.,1.), cam, lilla);
 
         // save frame
         char name[30];
@@ -99,13 +112,15 @@ Camera create_camera(Vector C, Vector D){
 }
 
 // utility function called when a pixel has to be manipulated
-void manipulate_pixel(unsigned char *img, int x, int y){
+void manipulate_pixel(unsigned char *img, int x, int y, Color c){
     int index = (y*WIDTH + x)*3;
-    for (int i=0; i<3; i++){
-        // if (img[index+i] <= 127){ img[index+i]+=127; }
-        // else{ img[index+i]+=128; }
-        img[index+i] = 255;
-    }
+    // for (int i=0; i<3; i++){
+    //     if (img[index+i] <= 127){ img[index+i]+=127; }
+    //     else{ img[index+i]+=128; }
+    // }
+    img[index] = c.r;
+    img[index+1] = c.g;
+    img[index+2] = c.b;
 }
 
 // returns the 2d vector fo the point projected on camera plane
@@ -123,7 +138,7 @@ Vector project_point(Vector P, Camera cam){
 void draw_point(unsigned char *img, Vector P, Camera cam){
     Vector S2d = project_point(P, cam);
     
-    manipulate_pixel(img, roundl(S2d.y), roundl(S2d.y));
+    manipulate_pixel(img, roundl(S2d.y), roundl(S2d.y), white);
 }
 
 void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
@@ -151,13 +166,13 @@ void draw_line(unsigned char *img, Vector A, Vector B, Camera cam){
             }
 
             if(dist<line_thickness){
-                manipulate_pixel(img, j, i);
+                manipulate_pixel(img, j, i, white);
             }
         }
     }
 }
 
-void draw_triangle(unsigned char *img, Vector A, Vector B, Vector C, Camera cam){
+void draw_triangle(unsigned char *img, Vector A, Vector B, Vector C, Camera cam, Color color){
     Vector A_2d = project_point(A, cam);
     Vector B_2d = project_point(B, cam);
     Vector C_2d = project_point(C, cam);
@@ -179,7 +194,7 @@ void draw_triangle(unsigned char *img, Vector A, Vector B, Vector C, Camera cam)
             b = (AP_2d.x*AC_2d.y - AP_2d.y*AC_2d.x)/det;
             c = (AB_2d.x*AP_2d.y - AB_2d.y*AP_2d.x)/det;
 
-            if(b>=0 && c>=0 && c<1-b){ manipulate_pixel(img, j, i);}
+            if(b>=0 && c>=0 && c<1-b){ manipulate_pixel(img, j, i, color);}
         }
     }
 }
