@@ -16,4 +16,9 @@ I originally started this project to create this:
 
 <video controls src="videos/disappearing_effect.mp4" title="Title"></video>
 
+
+https://github.com/user-attachments/assets/2523892e-1be7-4384-81cb-c5ba89663b17
+
+
+
 A video of a rotating cube with the peculiarity that the cube disappears when pausing the video!
