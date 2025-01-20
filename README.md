@@ -14,6 +14,6 @@ rm -rf tmp_dirx
 
 I originally started this project to create this:
 
-<video controls src="5final/output.mp4" title="Title"></video>
+<video controls src="videos/disappearing_effect.mp4" title="Title"></video>
 
 A video of a rotating cube with the peculiarity that the cube disappears when pausing the video!
